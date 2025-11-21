@@ -2,42 +2,43 @@ import type { BillData } from '../types';
 import { generateWithGemini, isGeminiConfigured } from '../services/gemini';
 
 // Các hành động liên quan cho từng loại "lời khai" phổ biến
+// Format: hành động "fake/nói" trước (count cao), hành động "thật" sau (count thấp)
 const actionCategories: Record<string, { name: string; range: [number, number] }[]> = {
   'người yêu': [
-    { name: 'Nhắn tin chủ động', range: [0, 3] },
-    { name: 'Ra ngoài gặp gỡ', range: [0, 5] },
-    { name: 'Cập nhật profile hẹn hò', range: [0, 2] },
-    { name: 'Rủ crush đi chơi', range: [0, 1] },
+    { name: 'Than ế trên mạng', range: [50, 200] },
+    { name: 'Xem video "cách tán gái"', range: [30, 100] },
+    { name: 'Nhắn tin crush trước', range: [0, 2] },
+    { name: 'Ra ngoài gặp người mới', range: [0, 3] },
   ],
   'tập gym': [
-    { name: 'Đi tập thực tế', range: [0, 3] },
-    { name: 'Mua đồ tập', range: [0, 5] },
-    { name: 'Follow gym influencer', range: [5, 30] },
-    { name: 'Đăng ký phòng gym', range: [0, 2] },
+    { name: 'Save video workout', range: [50, 300] },
+    { name: 'Mua đồ tập mới', range: [3, 15] },
+    { name: 'Thực sự đến phòng gym', range: [0, 5] },
+    { name: 'Tập đủ 1 tiếng', range: [0, 2] },
   ],
   'học': [
-    { name: 'Ngồi học thực tế', range: [0, 5] },
-    { name: 'Mua sách/khóa học', range: [1, 10] },
-    { name: 'Lên kế hoạch học', range: [5, 20] },
-    { name: 'Hoàn thành bài tập', range: [0, 3] },
+    { name: 'Mua khóa học online', range: [5, 20] },
+    { name: 'Lên lịch học "mai bắt đầu"', range: [30, 100] },
+    { name: 'Thực sự ngồi học', range: [0, 5] },
+    { name: 'Hoàn thành 1 bài', range: [0, 2] },
   ],
   'tiết kiệm': [
-    { name: 'Gửi tiền tiết kiệm', range: [0, 2] },
-    { name: 'Mua đồ sale', range: [5, 20] },
-    { name: 'Order đồ ăn', range: [10, 50] },
-    { name: 'Check app ngân hàng', range: [20, 100] },
+    { name: 'Order đồ ăn online', range: [20, 80] },
+    { name: 'Mua "đồ sale quá rẻ"', range: [10, 50] },
+    { name: 'Check số dư lo lắng', range: [50, 200] },
+    { name: 'Thực sự để dành tiền', range: [0, 3] },
   ],
   'dậy sớm': [
-    { name: 'Dậy đúng giờ', range: [0, 5] },
-    { name: 'Đặt báo thức', range: [50, 200] },
-    { name: 'Snooze báo thức', range: [20, 100] },
-    { name: 'Đi ngủ đúng giờ', range: [0, 3] },
+    { name: 'Đặt 10+ báo thức', range: [100, 500] },
+    { name: 'Snooze báo thức', range: [50, 300] },
+    { name: 'Hứa "mai dậy sớm"', range: [100, 365] },
+    { name: 'Thực sự dậy đúng giờ', range: [0, 5] },
   ],
   'default': [
-    { name: 'Nói về nó', range: [10, 100] },
-    { name: 'Thực hiện', range: [0, 5] },
-    { name: 'Lên kế hoạch', range: [5, 30] },
-    { name: 'Hành động thực tế', range: [0, 3] },
+    { name: 'Nói về việc này', range: [50, 200] },
+    { name: 'Lên kế hoạch chi tiết', range: [20, 80] },
+    { name: 'Tìm motivation', range: [30, 100] },
+    { name: 'Thực sự bắt tay làm', range: [0, 3] },
   ],
 };
 
@@ -142,18 +143,29 @@ function generateBillDataLocal(confession: string): BillData {
   const category = detectCategory(confession);
   const { date, time } = getCurrentDateTime();
 
-  const timesSaid = randomInRange(15, 200);
-  const timesDone = randomInRange(0, Math.min(5, Math.floor(timesSaid * 0.05)));
-  const delayHours = randomInRange(12, 720);
-  const realPriority = randomInRange(5, 40);
+  // Logic châm biếm: nói nhiều, làm ít, trì hoãn dài
+  const timesSaid = randomInRange(47, 365); // Nói gần như mỗi ngày trong năm
+  const timesDone = randomInRange(0, 3); // Làm được vài lần thôi
+  const successRate = timesDone / timesSaid * 100;
+
+  // Trì hoãn: "tuần sau" = 168h, "tháng sau" = 720h, "năm sau" = 8760h
+  const delayOptions = [168, 336, 720, 1440, 2160]; // 1 tuần, 2 tuần, 1 tháng, 2 tháng, 3 tháng
+  const delayHours = delayOptions[randomInRange(0, delayOptions.length - 1)];
+
+  // Priority thấp vì nếu quan trọng thì đã làm rồi
+  const realPriority = Math.max(1, Math.min(15, Math.round(successRate * 5))); // Max 15%
 
   const categoryActions = actionCategories[category] || actionCategories['default'];
   const shuffledActions = [...categoryActions].sort(() => Math.random() - 0.5);
   const selectedActions = shuffledActions.slice(0, randomInRange(2, 3));
 
-  const relatedActions = selectedActions.map(action => ({
+  // Actions: hành động "fake" nhiều, hành động thật ít
+  const relatedActions = selectedActions.map((action, index) => ({
     name: action.name,
-    count: randomInRange(action.range[0], action.range[1]),
+    // Action đầu tiên (thường là hành động giả) có count cao, action sau thấp dần
+    count: index === 0
+      ? randomInRange(Math.max(action.range[0], 20), action.range[1] + 30)
+      : randomInRange(0, Math.min(5, action.range[1])),
   }));
 
   const conclusions = bitterConclusions[category] || bitterConclusions['default'];
