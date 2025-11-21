@@ -189,7 +189,7 @@ function generateBillDataLocal(confession: string): BillData {
 export async function generateBillDataWithAI(confession: string): Promise<BillData> {
   const { date, time } = getCurrentDateTime();
 
-  // Base data
+  // Base data (fallback values)
   const baseData: BillData = {
     checkId: generateCheckId(),
     date,
@@ -209,11 +209,27 @@ export async function generateBillDataWithAI(confession: string): Promise<BillDa
       const aiResponse = await generateWithGemini(confession);
 
       if (aiResponse) {
+        // Sử dụng statistics từ AI nếu có, nếu không thì dùng fallback
+        const statistics = aiResponse.statistics || {
+          timesSaid: baseData.timesSaid,
+          timesDone: baseData.timesDone,
+          delayHours: baseData.delayHours,
+          realPriority: baseData.realPriority,
+        };
+
+        // Sử dụng relatedActions từ AI nếu có, nếu không thì dùng local
+        const relatedActions = aiResponse.relatedActions && aiResponse.relatedActions.length > 0
+          ? aiResponse.relatedActions
+          : generateBillDataLocal(confession).relatedActions;
+
         return {
           ...baseData,
+          timesSaid: statistics.timesSaid,
+          timesDone: statistics.timesDone,
+          delayHours: statistics.delayHours,
+          realPriority: statistics.realPriority,
+          relatedActions,
           bitterConclusion: aiResponse.bitterConclusion,
-          // relatedActions: aiResponse.relatedActions
-          relatedActions: generateBillDataLocal(confession).relatedActions, // Tạm thời dùng local cho relatedActions
         };
       }
     } catch (error) {
@@ -237,9 +253,12 @@ export function formatDelayTime(hours: number): string {
   } else if (hours < 168) {
     const days = Math.floor(hours / 24);
     return `${days} ngày`;
-  } else {
+  } else if (hours < 720) {
     const weeks = Math.floor(hours / 168);
     return `${weeks} tuần`;
+  } else {
+    const months = Math.floor(hours / 720);
+    return `${months} tháng`;
   }
 }
 
