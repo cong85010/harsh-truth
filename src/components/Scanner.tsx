@@ -1,7 +1,7 @@
 import { useState, useRef, useCallback } from 'react';
 import type { BillData } from '../types';
 import { generateBillDataWithAI } from '../utils/billGenerator';
-import Bill from './Bill';
+import Bill, { type BillRef } from './Bill';
 
 // Component máy scan chính - 3D POS Machine Style
 export default function Scanner() {
@@ -14,6 +14,7 @@ export default function Scanner() {
 
   const beepAudioRef = useRef<HTMLAudioElement | null>(null);
   const printAudioRef = useRef<HTMLAudioElement | null>(null);
+  const billRef = useRef<BillRef>(null);
 
   const playBeepSound = useCallback(() => {
     try {
@@ -300,20 +301,52 @@ export default function Scanner() {
                     <div className="relative">
                       {/* Shadow behind bill */}
                       <div className="absolute inset-0 bg-black/30 blur-lg translate-y-3 translate-x-1 pointer-events-none" />
-                      <Bill data={billData} isAnimating={false} />
+                      <Bill ref={billRef} data={billData} isAnimating={false} />
                     </div>
                   </div>
                 </div>
 
-                <button
-                  onClick={handleReset}
-                  className="mt-6 mb-4 bg-white hover:bg-gray-100 text-black font-mono text-xs py-2 px-4 border-2 border-black transition-all hover:shadow-lg active:translate-y-0.5 relative z-30"
-                  style={{
-                    boxShadow: '3px 3px 0 #000',
-                  }}
-                >
-                  ↻ SCAN LẠI
-                </button>
+                {/* Action buttons - 3D style */}
+                <div className="flex gap-3 mt-6 mb-4 w-full max-w-[320px]">
+                  <button
+                    onClick={() => billRef.current?.shareImage()}
+                    className="flex-1 py-3 px-2 font-mono text-[11px] font-bold tracking-wide text-white cursor-pointer transition-all duration-100 active:translate-y-1"
+                    style={{
+                      background: 'linear-gradient(180deg, #3b82f6 0%, #2563eb 50%, #1d4ed8 100%)',
+                      borderRadius: '8px',
+                      boxShadow: '0 4px 0 #1e40af, 0 6px 10px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.2)',
+                      border: 'none',
+                    }}
+                  >
+                    ĐI KHOE
+                  </button>
+
+                  <button
+                    onClick={() => billRef.current?.downloadImage()}
+                    className="flex-1 py-3 px-2 font-mono text-[11px] font-bold tracking-wide text-white cursor-pointer transition-all duration-100 active:translate-y-1"
+                    style={{
+                      background: 'linear-gradient(180deg, #22c55e 0%, #16a34a 50%, #15803d 100%)',
+                      borderRadius: '8px',
+                      boxShadow: '0 4px 0 #166534, 0 6px 10px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.2)',
+                      border: 'none',
+                    }}
+                  >
+                    HỐT VỀ
+                  </button>
+
+                  <button
+                    onClick={handleReset}
+                    className="flex-1 py-3 px-2 font-mono text-[11px] font-bold tracking-wide text-white cursor-pointer transition-all duration-100 active:translate-y-1"
+                    style={{
+                      background: 'linear-gradient(180deg, #ef4444 0%, #dc2626 50%, #b91c1c 100%)',
+                      borderRadius: '8px',
+                      boxShadow: '0 4px 0 #991b1b, 0 6px 10px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.2)',
+                      border: 'none',
+                    }}
+                  >
+                    QUAY ĐẦU
+                  </button>
+                </div>
               </div>
             )}
           </div>

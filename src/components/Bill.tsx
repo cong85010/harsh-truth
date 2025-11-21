@@ -1,3 +1,5 @@
+import { useRef, forwardRef, useImperativeHandle } from 'react';
+import { toPng } from 'html-to-image';
 import type { BillData } from '../types';
 import { formatDelayTime } from '../utils/billGenerator';
 
@@ -6,10 +8,77 @@ interface BillProps {
   isAnimating: boolean;
 }
 
+export interface BillRef {
+  downloadImage: () => Promise<void>;
+  shareImage: () => Promise<void>;
+}
+
 // Component hiển thị bill dạng POS receipt
-export default function Bill({ data, isAnimating }: BillProps) {
+const Bill = forwardRef<BillRef, BillProps>(({ data, isAnimating }, ref) => {
+  const billRef = useRef<HTMLDivElement>(null);
+
+  // Download bill as image
+  const downloadImage = async () => {
+    if (!billRef.current) return;
+    try {
+      const dataUrl = await toPng(billRef.current, {
+        quality: 1,
+        pixelRatio: 2,
+        backgroundColor: '#ffffff',
+      });
+      const link = document.createElement('a');
+      link.download = `harsh-truth-${data.checkId}.png`;
+      link.href = dataUrl;
+      link.click();
+    } catch (err) {
+      console.error('Failed to download image:', err);
+    }
+  };
+
+  // Share bill (mobile) or copy to clipboard (desktop)
+  const shareImage = async () => {
+    if (!billRef.current) return;
+    try {
+      const dataUrl = await toPng(billRef.current, {
+        quality: 1,
+        pixelRatio: 2,
+        backgroundColor: '#ffffff',
+      });
+
+      // Convert to blob
+      const response = await fetch(dataUrl);
+      const blob = await response.blob();
+      const file = new File([blob], `harsh-truth-${data.checkId}.png`, { type: 'image/png' });
+
+      // Try native share first (mobile)
+      if (navigator.share && navigator.canShare?.({ files: [file] })) {
+        await navigator.share({
+          files: [file],
+          title: 'Harsh Truth Receipt',
+          text: `Sự thật cay đắng: "${data.bitterConclusion}"`,
+        });
+      } else {
+        // Fallback: copy image to clipboard
+        await navigator.clipboard.write([
+          new ClipboardItem({ 'image/png': blob })
+        ]);
+        alert('Đã copy hình vào clipboard!');
+      }
+    } catch (err) {
+      console.error('Failed to share:', err);
+      // Ultimate fallback: download
+      downloadImage();
+    }
+  };
+
+  useImperativeHandle(ref, () => ({
+    downloadImage,
+    shareImage,
+  }));
+
   return (
     <div
+      ref={billRef}
       className={`
         receipt-paper
         w-full max-w-[320px]
@@ -20,8 +89,11 @@ export default function Bill({ data, isAnimating }: BillProps) {
         ${isAnimating ? 'animate-slide-down' : ''}
       `}
       style={{
-        // Tạo hiệu ứng giấy xé ở đầu
-        clipPath: 'polygon(0% 2%, 3% 0%, 6% 2%, 9% 0%, 12% 2%, 15% 0%, 18% 2%, 21% 0%, 24% 2%, 27% 0%, 30% 2%, 33% 0%, 36% 2%, 39% 0%, 42% 2%, 45% 0%, 48% 2%, 51% 0%, 54% 2%, 57% 0%, 60% 2%, 63% 0%, 66% 2%, 69% 0%, 72% 2%, 75% 0%, 78% 2%, 81% 0%, 84% 2%, 87% 0%, 90% 2%, 93% 0%, 96% 2%, 100% 0%, 100% 100%, 0% 100%)',
+        // Tạo hiệu ứng giấy xé ở đầu và cuối
+        clipPath: `polygon(
+          0% 2%, 3% 0%, 6% 2%, 9% 0%, 12% 2%, 15% 0%, 18% 2%, 21% 0%, 24% 2%, 27% 0%, 30% 2%, 33% 0%, 36% 2%, 39% 0%, 42% 2%, 45% 0%, 48% 2%, 51% 0%, 54% 2%, 57% 0%, 60% 2%, 63% 0%, 66% 2%, 69% 0%, 72% 2%, 75% 0%, 78% 2%, 81% 0%, 84% 2%, 87% 0%, 90% 2%, 93% 0%, 96% 2%, 100% 0%,
+          100% 98%, 97% 100%, 94% 98%, 91% 100%, 88% 98%, 85% 100%, 82% 98%, 79% 100%, 76% 98%, 73% 100%, 70% 98%, 67% 100%, 64% 98%, 61% 100%, 58% 98%, 55% 100%, 52% 98%, 49% 100%, 46% 98%, 43% 100%, 40% 98%, 37% 100%, 34% 98%, 31% 100%, 28% 98%, 25% 100%, 22% 98%, 19% 100%, 16% 98%, 13% 100%, 10% 98%, 7% 100%, 4% 98%, 0% 100%
+        )`,
       }}
     >
       {/* === HEADER === */}
@@ -34,12 +106,12 @@ export default function Bill({ data, isAnimating }: BillProps) {
 
       <div className="receipt-divider my-3" />
 
-      <div className="flex justify-between text-[10px] mb-1">
+      <div className="flex justify-between text-[10px] mb-2">
         <span>📅 {data.date}</span>
         <span>⏰ {data.time}</span>
       </div>
       <div className="text-[10px] mb-3">
-        🔢 Check ID: {data.checkId}
+        🔢 Check ID: <span className="font-bold">{data.checkId}</span>
       </div>
 
       <div className="receipt-divider my-3" />
@@ -139,7 +211,7 @@ export default function Bill({ data, isAnimating }: BillProps) {
       </div>
 
       <div className="text-center text-[8px] text-gray-400">
-        harsh-truth-scanner.app
+        {typeof window !== 'undefined' ? window.location.host : 'harsh-truth-scanner.app'}
       </div>
 
       {/* Decorative bottom */}
@@ -151,4 +223,6 @@ export default function Bill({ data, isAnimating }: BillProps) {
       </div>
     </div>
   );
-}
+});
+
+export default Bill;
