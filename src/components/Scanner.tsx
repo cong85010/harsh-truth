@@ -241,13 +241,13 @@ export default function Scanner() {
             <textarea
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="Nhập thứ bạn nói hoài mà chưa làm..."
+              placeholder="Nhập thứ bạn nói hoài mà chưa làm...&#10;&#10;VD: Tôi muốn tập gym&#10;VD: Tôi muốn học tiếng Anh&#10;"
               disabled={isScanning}
               className="w-full bg-gray-800 text-white placeholder-gray-500 rounded-md p-3 text-sm font-mono resize-none focus:outline-none focus:ring-2 focus:ring-green-500/50 disabled:opacity-50 border-0"
               style={{
                 boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.3)',
               }}
-              rows={2}
+              rows={4}
             />
           </div>
 

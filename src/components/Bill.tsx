@@ -126,68 +126,238 @@ const Bill = forwardRef<BillRef, BillProps>(({ data, isAnimating }, ref) => {
 
       <div className="receipt-divider my-3" />
 
-      {/* Số liệu */}
-      <div className="text-[10px] text-gray-500 mb-2">SỐ LIỆU THỐNG KÊ:</div>
-
-      <div className="space-y-1 mb-3">
-        <div className="flex justify-between">
-          <span>Số lần nói:</span>
-          <span className="font-bold">{data.timesSaid} lần</span>
+      {/* Stats Card - ULTRA GEN Z */}
+      <div className="bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 rounded-lg p-3 mb-3 border-2 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]">
+        <div className="text-[11px] font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-600 mb-2 text-center tracking-wide">
+          ✨ REALITY CHECK STATS ✨
         </div>
-        <div className="flex justify-between">
-          <span>Số lần làm:</span>
-          <span className="font-bold text-red-600">{data.timesDone} lần</span>
+        <div className="text-[7px] text-center text-gray-600 mb-3 font-bold">
+          (NO CAP FR FR 💯)
         </div>
-        <div className="flex justify-between">
-          <span>Trì hoãn gần nhất:</span>
-          <span className="font-bold">{formatDelayTime(data.delayHours)}</span>
-        </div>
-      </div>
 
-      <div className="receipt-divider my-3" />
+        {/* Talk vs Action Ratio - MEGA HIGHLIGHT */}
+        <div className="bg-white rounded-xl p-3 mb-3 border-3 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] relative overflow-hidden">
+          {/* Background decoration */}
+          <div className="absolute top-0 right-0 text-6xl opacity-5">💀</div>
 
-      {/* Hành động liên quan */}
-      <div className="text-[10px] text-gray-500 mb-2">HÀNH ĐỘNG LIÊN QUAN:</div>
-      <div className="space-y-1 mb-3">
-        {data.relatedActions.map((action, index) => (
-          <div key={index} className="flex justify-between">
-            <span className="text-[10px]">• {action.name}:</span>
-            <span className="font-bold">{action.count} lần</span>
+          <div className="text-center mb-2 relative z-10">
+            <div className="text-[8px] font-bold text-gray-500 mb-2 tracking-widest">
+              ⚔️ TALK vs ACTION RATIO ⚔️
+            </div>
+            <div className="flex items-end justify-center gap-3 mb-2">
+              <div className="text-center">
+                <div className="text-3xl font-black text-blue-600 leading-none">{data.timesSaid}</div>
+                <div className="text-[7px] text-blue-400 font-bold mt-1">TALKING 💬</div>
+              </div>
+              <div className="text-2xl font-black text-gray-800 mb-1">VS</div>
+              <div className="text-center">
+                <div className="text-3xl font-black text-red-600 leading-none">{data.timesDone}</div>
+                <div className="text-[7px] text-red-400 font-bold mt-1">DOING ⚡</div>
+              </div>
+            </div>
           </div>
-        ))}
-      </div>
 
-      <div className="receipt-divider my-3" />
+          {/* Success Rate BRUTAL */}
+          <div className="bg-gradient-to-r from-red-50 to-orange-50 rounded-lg p-2 border-2 border-red-200">
+            <div className="flex justify-between items-center mb-1">
+              <span className="text-[8px] font-bold text-gray-700">Win Rate:</span>
+              <div className="flex items-center gap-1.5">
+                <span className="text-lg font-black text-red-600">
+                  {((data.timesDone / data.timesSaid) * 100).toFixed(1)}%
+                </span>
+                <span className="text-sm">💀</span>
+              </div>
+            </div>
+            <div className="text-[7px] text-center font-black uppercase tracking-wide">
+              {data.realPriority < 1
+                ? "🚨 MASSIVE SKILL ISSUE DETECTED"
+                : data.realPriority < 2
+                ? "😭 BRO IS COOKED"
+                : data.realPriority < 5
+                ? "📉 MID AF NGL"
+                : data.realPriority < 10
+                ? "🎯 ACCEPTABLE I GUESS"
+                : "⭐ RARE W"}
+            </div>
+          </div>
+        </div>
 
-      {/* Độ ưu tiên */}
-      <div className="flex justify-between items-center mb-3">
-        <span className="text-[10px] text-gray-500">ĐỘ ƯU TIÊN THỰC TẾ:</span>
-        <div className="flex items-center gap-2">
-          <div className="w-16 h-2 bg-gray-200 rounded overflow-hidden">
+        {/* Procrastination Level - GAMER STYLE */}
+        <div className="bg-gradient-to-r from-yellow-100 to-orange-100 rounded-lg p-2.5 mb-2 border-2 border-orange-400 shadow-[2px_2px_0px_0px_rgba(251,146,60,1)]">
+          <div className="flex items-center justify-between mb-1">
+            <div className="flex items-center gap-1">
+              <span className="text-lg">⏰</span>
+              <span className="text-[8px] font-black text-orange-900">DELAY TIMER</span>
+            </div>
+            <div className="text-right">
+              <div className="text-base font-black text-orange-700">{formatDelayTime(data.delayHours)}</div>
+            </div>
+          </div>
+          <div className="bg-orange-200 rounded-full px-2 py-0.5 text-center">
+            <div className="text-[7px] font-black text-orange-900 uppercase">
+              {data.delayHours > 720
+                ? "🏆 LEGENDARY PROCRASTINATOR"
+                : data.delayHours > 360
+                ? "⭐ MASTER DELAYER"
+                : data.delayHours > 168
+                ? "📅 PRO POSTPONER"
+                : "📝 ROOKIE NUMBERS"}
+            </div>
+          </div>
+        </div>
+
+        {/* Priority Progress - GAMING UI */}
+        <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-lg p-2.5 border-2 border-slate-600 shadow-[2px_2px_0px_0px_rgba(71,85,105,1)]">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-[8px] font-black text-slate-300 tracking-wider">PRIORITY METER</span>
+            <span className="text-[7px] font-mono text-slate-400">LVL {Math.floor(data.realPriority / 10)}</span>
+          </div>
+          <div className="relative h-7 bg-slate-950 rounded-lg overflow-hidden border-2 border-slate-700">
+            {/* Animated background */}
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent animate-pulse"></div>
+
             <div
-              className="h-full bg-black transition-all duration-500"
-              style={{ width: `${data.realPriority}%` }}
-            />
+              className="h-full bg-gradient-to-r from-red-500 via-orange-500 to-yellow-500 transition-all duration-700 flex items-center justify-center relative"
+              style={{ width: `${Math.max(data.realPriority, 10)}%` }}
+            >
+              <span className="text-[9px] font-black text-white drop-shadow-lg z-10">
+                {data.realPriority}%
+              </span>
+              {/* Shimmer effect */}
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer"></div>
+            </div>
           </div>
-          <span className="font-bold text-red-600">{data.realPriority}%</span>
+          <div className="text-center mt-1.5 bg-slate-950 rounded px-2 py-0.5">
+            <div className="text-[7px] font-black text-red-400 uppercase tracking-wide">
+              {data.realPriority < 0.5
+                ? "👻 GHOST PROTOCOL ACTIVE"
+                : data.realPriority < 1
+                ? "💀 CRITICAL SKILL ISSUE"
+                : data.realPriority < 3
+                ? "😴 AFK ENERGY DETECTED"
+                : data.realPriority < 7
+                ? "🤷 MID COMMITMENT"
+                : data.realPriority < 15
+                ? "📈 SLIGHT PROGRESS"
+                : "🔥 RARE W MOMENT"}
+            </div>
+          </div>
         </div>
       </div>
 
       <div className="receipt-divider my-3" />
 
-      {/* === KẾT LUẬN CAY ĐẮNG === */}
+      {/* Actions - GAMING LOG STYLE */}
+      <div className="mb-3">
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-[9px] font-black text-gray-700 tracking-wider">🎮 ACTIVITY LOG</span>
+          <span className="text-[6px] font-mono text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded">RECORDED</span>
+        </div>
+        <div className="space-y-1.5">
+          {data.relatedActions.map((action, index) => {
+            const isActual = action.name.toLowerCase().includes('actual');
+            const isHigh = action.count > 100;
+            const isMid = action.count > 20 && action.count <= 100;
+
+            return (
+              <div
+                key={index}
+                className={`
+                  flex justify-between items-center rounded-lg px-2.5 py-1.5 border-2
+                  ${isActual
+                    ? 'bg-gradient-to-r from-green-50 to-emerald-50 border-green-300'
+                    : 'bg-gradient-to-r from-gray-50 to-slate-50 border-gray-300'}
+                  shadow-sm
+                `}
+              >
+                <span className="text-[8px] font-medium text-gray-800 flex items-center gap-1">
+                  <span className={isActual ? 'text-green-600' : 'text-gray-400'}>
+                    {isActual ? '✓' : '•'}
+                  </span>
+                  {action.name}
+                </span>
+                <div className="flex items-center gap-1.5">
+                  <span className={`
+                    font-black text-[10px] px-1.5 py-0.5 rounded
+                    ${isHigh ? 'bg-red-100 text-red-700' : isMid ? 'bg-yellow-100 text-yellow-700' : 'bg-gray-100 text-gray-700'}
+                  `}>
+                    {action.count}x
+                  </span>
+                  {isHigh && <span className="text-[9px]">💀</span>}
+                  {isMid && !isActual && <span className="text-[9px]">📈</span>}
+                  {isActual && action.count < 5 && <span className="text-[9px]">😭</span>}
+                  {isActual && action.count >= 5 && <span className="text-[9px]">🎯</span>}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      <div className="receipt-divider my-3" />
+
+      {/* === FINAL ROAST === */}
       <div className="mb-4">
-        <div className="text-[10px] text-gray-500 mb-2">KẾT LUẬN CAY ĐẮNG:</div>
-        <div className="text-center py-3 px-2 bg-black text-white text-sm font-bold rounded">
-          "{data.bitterConclusion}"
+        <div className="flex items-center justify-center gap-2 mb-3">
+          <div className="flex-1 h-px bg-gradient-to-r from-transparent via-red-300 to-transparent"></div>
+          <span className="text-[8px] font-black text-red-600 tracking-widest">⚡ FINAL VERDICT ⚡</span>
+          <div className="flex-1 h-px bg-gradient-to-r from-transparent via-red-300 to-transparent"></div>
+        </div>
+
+        {/* Main roast card - MEGA IMPACT */}
+        <div className="relative">
+          {/* Glow effect */}
+          <div className="absolute inset-0 bg-gradient-to-r from-red-500 to-orange-500 blur-sm opacity-20 rounded-xl"></div>
+
+          <div className="relative bg-gradient-to-br from-red-600 via-red-700 to-red-800 rounded-xl p-4 border-2 border-red-950 shadow-[4px_4px_0px_0px_rgba(127,29,29,1)]">
+            {/* Corner decorations */}
+            <div className="absolute top-1 left-1 text-red-300/20 text-xl">💀</div>
+            <div className="absolute bottom-1 right-1 text-red-300/20 text-xl">🔥</div>
+
+            <div className="relative z-10">
+              <div className="text-center mb-2">
+                <div className="inline-block bg-red-950/50 px-3 py-1 rounded-full border border-red-400/30">
+                  <span className="text-[7px] font-black text-red-200 tracking-widest">REALITY CHECK COMPLETE</span>
+                </div>
+              </div>
+
+              <div className="text-center text-white font-black text-sm leading-relaxed px-2">
+                "{data.bitterConclusion}"
+              </div>
+
+              {/* Rating bar */}
+              <div className="mt-3 pt-3 border-t border-red-500/30">
+                <div className="flex items-center justify-center gap-1">
+                  <span className="text-[7px] text-red-200">PAIN LEVEL:</span>
+                  <div className="flex gap-0.5">
+                    {[...Array(5)].map((_, i) => (
+                      <span key={i} className="text-xs">
+                        {i < 4 ? '🔥' : '💀'}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
       <div className="receipt-divider my-3" />
 
-      {/* === FOOTER === */}
-      <div className="text-center text-[10px] text-gray-500 mb-4">
-        <div className="mb-2">— Hãy quay lại khi bạn chịu làm thật. —</div>
+      {/* === FOOTER - GEN Z STYLE === */}
+      <div className="text-center mb-4">
+        <div className="bg-gradient-to-r from-gray-100 via-gray-50 to-gray-100 rounded-lg p-3 border border-gray-200">
+          <div className="text-[8px] font-black text-gray-700 mb-2 tracking-wide">
+            📌 NEXT STEPS (IF YOU DARE)
+          </div>
+          <div className="text-[7px] text-gray-600 space-y-1">
+            <div>1. Accept the truth 💀</div>
+            <div>2. Stop capping 🧢</div>
+            <div>3. Actually do something 🎯</div>
+            <div className="text-[6px] italic text-gray-500 mt-2">(or come back for another roast lol)</div>
+          </div>
+        </div>
       </div>
 
       {/* QR Code placeholder */}
